@@ -7,11 +7,11 @@ st.set_page_config(layout="wide")
 
 script_dir = os.path.dirname(__file__)
 
-logo_path = "C:/Users/alazar/Desktop/falcon hackathon/alazar/falcon/logo.png" 
+logo_path = "logo.png" 
 
 def get_db_connection():
     try:
-        conn = sqlite3.connect('C:/Users/alazar/Desktop/falcon hackathon/alazar/falcon/ai_conversation.db')
+        conn = sqlite3.connect('ai_conversation.db')
         conn.row_factory = sqlite3.Row 
         return conn
     except sqlite3.Error as err:

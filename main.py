@@ -17,7 +17,7 @@ AudioSegment.ffmpeg = ffmpeg.get_ffmpeg_exe()
 
 def get_db_connection():
     try:
-        conn = sqlite3.connect('C:/Users/alazar/Desktop/falcon hackathon/alazar/falcon/ai_conversation.db')
+        conn = sqlite3.connect('ai_conversation.db')
         conn.row_factory = sqlite3.Row  # Ensure rows are returned as dictionaries
         return conn
     except sqlite3.Error as err:
