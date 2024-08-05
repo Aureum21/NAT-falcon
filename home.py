@@ -1,58 +1,77 @@
 import streamlit as st
-import mysql.connector
 import subprocess
 import os
+import sqlite3
 
 st.set_page_config(layout="wide")
 
 script_dir = os.path.dirname(__file__)
 
-logo_path = "logo.png" # if not working try using absolute path
+logo_path = "C:/Users/alazar/Desktop/falcon hackathon/alazar/falcon/logo.png" 
 
-def connect_to_db():
-    conn = mysql.connector.connect(
-        host="localhost",
-        user="root", 
-        password="",  
-        database="ai_conversation"
-    )
-    return conn
+def get_db_connection():
+    try:
+        conn = sqlite3.connect('C:/Users/alazar/Desktop/falcon hackathon/alazar/falcon/ai_conversation.db')
+        conn.row_factory = sqlite3.Row 
+        return conn
+    except sqlite3.Error as err:
+        print(f"Error: {err}")
+        return None
 
 def insert_user(name, username, email, password, language, level, purpose, minperday):
-    conn = connect_to_db()
+    conn = get_db_connection()
+    if conn is None:
+        return
     cursor = conn.cursor()
-    cursor.execute('''INSERT INTO users 
-                      (fullname, username, email, password, profile_language, profile_level, profile_purpose, profile_minutes_per_day) 
-                      VALUES (%s, %s, %s, %s, %s, %s, %s, %s)''', 
-                   (name, username, email, password, language, level, purpose, minperday))
-    conn.commit()
-    conn.close()
+    try:
+        cursor.execute('''INSERT INTO users 
+                          (fullname, username, email, password, profile_language, profile_level, profile_purpose, profile_minutes_per_day) 
+                          VALUES (?, ?, ?, ?, ?, ?, ?, ?)''', 
+                       (name, username, email, password, language, level, purpose, minperday))
+        conn.commit()
+    finally:
+        cursor.close()
+        conn.close()
 
 def check_user(username_or_email, password):
-    conn = connect_to_db()
+    conn = get_db_connection()
+    if conn is None:
+        return None
     cursor = conn.cursor()
-    cursor.execute('SELECT * FROM users WHERE (username = %s OR email = %s) AND password = %s', 
-                   (username_or_email, username_or_email, password))
-    user = cursor.fetchone()
-    conn.close()
+    try:
+        cursor.execute('SELECT * FROM users WHERE (username = ? OR email = ?) AND password = ?', 
+                       (username_or_email, username_or_email, password))
+        user = cursor.fetchone()
+    finally:
+        cursor.close()
+        conn.close()
     return user
 
 def get_user_data(username_or_email):
-    conn = connect_to_db()
+    conn = get_db_connection()
+    if conn is None:
+        return None
     cursor = conn.cursor()
-    cursor.execute('SELECT * FROM users WHERE username = %s OR email = %s', 
-                   (username_or_email, username_or_email))
-    user_data = cursor.fetchone()
-    conn.close()
+    try:
+        cursor.execute('SELECT * FROM users WHERE username = ? OR email = ?', 
+                       (username_or_email, username_or_email))
+        user_data = cursor.fetchone()
+    finally:
+        cursor.close()
+        conn.close()
     return user_data
 
 def get_user_profile(username):
-    conn = connect_to_db()
-    cursor = conn.cursor(dictionary=True)
-    cursor.execute("SELECT * FROM users WHERE username = %s", (username,))
-    user_profile = cursor.fetchone()
-    cursor.close()
-    conn.close()
+    conn = get_db_connection()
+    if conn is None:
+        return None
+    cursor = conn.cursor()
+    try:
+        cursor.execute("SELECT * FROM users WHERE username = ?", (username,))
+        user_profile = cursor.fetchone()
+    finally:
+        cursor.close()
+        conn.close()
     return user_profile
     
 def run_main():
@@ -70,6 +89,7 @@ if 'username' not in st.session_state:
     st.session_state.username = None
 
 def home_page():
+      
     col1, col2 = st.columns([2.5,3])
     with col1:
          st.image(logo_path, width=110)

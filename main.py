@@ -1,6 +1,5 @@
 import streamlit as st
 from ai71 import AI71
-import mysql.connector
 import speech_recognition as sr
 from gtts import gTTS
 from pydub import AudioSegment
@@ -10,28 +9,27 @@ import json
 from io import BytesIO
 import time 
 import imageio_ffmpeg as ffmpeg
+import sqlite3
 
 st.set_page_config(layout="wide")
 
-AI71_API_KEY = "Enter your AI71 api-key"
-client = AI71(AI71_API_KEY)
-
 AudioSegment.ffmpeg = ffmpeg.get_ffmpeg_exe()
 
-db_config = {
-    'host': 'localhost',
-    'user': 'root', 
-    'password': 'password', # fill ur password
-    'database': 'Database name' # fill the name of ur database
-}
-
-
 def get_db_connection():
-    return mysql.connector.connect(**db_config)
+    try:
+        conn = sqlite3.connect('C:/Users/alazar/Desktop/falcon hackathon/alazar/falcon/ai_conversation.db')
+        conn.row_factory = sqlite3.Row  # Ensure rows are returned as dictionaries
+        return conn
+    except sqlite3.Error as err:
+        print(f"Error: {err}")
+        return None
+
 
 def get_user_profile():
     conn = get_db_connection()
-    cursor = conn.cursor(dictionary=True)
+    if conn is None:
+        return None
+    cursor = conn.cursor()
     try:
         cursor.execute('SELECT * FROM users ORDER BY user_id DESC LIMIT 1')
         user_profile = cursor.fetchone()
@@ -40,19 +38,21 @@ def get_user_profile():
         conn.close()  
     return user_profile
 
-
 def save_to_database(user_message, assistant_response):
     conn = get_db_connection()
+    if conn is None:
+        return
     cursor = conn.cursor()
-    cursor.execute(
-        "INSERT INTO conversations (user_message, assistant_response) VALUES (%s, %s)",
-        (user_message, assistant_response)
-    )
-    conn.commit()
-    cursor.close()
-    conn.close()
+    try:
+        cursor.execute(
+            "INSERT INTO conversations (user_message, assistance_response) VALUES (?, ?)",
+            (user_message, assistant_response)
+        )
+        conn.commit()
+    finally:
+        cursor.close()
+        conn.close()
 
-# Define lesson plans
 lesson_plans = {
     "Beginner": {
         "General": {
@@ -91,7 +91,28 @@ if 'start_time' not in st.session_state:
 if 'total_time' not in st.session_state:
     st.session_state.total_time = 0.0
 
+@st.dialog("API Key Entry", width="large")
+def api_key_dialog():
+    api_key = st.text_input("Provide your AI71 API key to proceed", type="password")
+
+    if st.button("Submit"):
+        if api_key:
+            st.session_state.api_key = api_key
+            st.success("API Key has been set successfully!")
+            st.rerun()
+
+        else:
+            st.error("Please enter an API Key.")
+
+if 'api_key' not in st.session_state:
+    st.session_state.api_key = ""
+    api_key_dialog()
+    
+AI71_API_KEY = st.session_state.api_key
+client = AI71(AI71_API_KEY)
+
 def capture_voice():
+    
     recognizer = sr.Recognizer()
     with sr.Microphone() as source:
         st.info("Please say something:")
@@ -108,6 +129,10 @@ def capture_voice():
             return None
 
 def get_response(messages):
+    if not st.session_state.api_key:
+        st.error("API key is not set. Please provide a valid API key.")
+        return None
+
     try:
         response = client.chat.completions.create(
             model="tiiuae/falcon-180B-chat",
@@ -151,7 +176,9 @@ def speak_text(text, lang='en'):
         st.error(f"Language not supported: {lang}")
 
 def chat_with_falcon(user_input):
-
+    if not st.session_state.api_key:
+        st.error("API key is not set. Please provide a valid API key.")
+        return "API key is missing."
     profile_language = st.session_state.get('profile_language', 'English')
     profile_level = st.session_state.get('profile_level', 'Beginner')
     profile_purpose = st.session_state.get('profile_purpose', 'General')
@@ -184,8 +211,13 @@ def chat_with_falcon(user_input):
     else:
         return "Sorry, I didn't understand that."
 
+
 def main():
-        
+
+    if 'api_key' not in st.session_state:
+        st.session_state.api_key = None
+        api_key_dialog()
+    
     sidebar = st.sidebar
     sidebar.title("Menu")
     profile_button = sidebar.button("Profile", use_container_width=True)
@@ -193,6 +225,7 @@ def main():
     pricing_button = sidebar.button("Pricing", use_container_width=True)
     about_us_button = sidebar.button("About Us", use_container_width=True)
     contact_us_button = sidebar.button("Contact Us", use_container_width=True)
+    api_button = sidebar.button("API-key", use_container_width=True)
     sidebar.caption("All rights reserved \u00A9 2024 Voicepal")
 
     profile = get_user_profile()
@@ -215,6 +248,9 @@ def main():
         st.write(f"**Purpose of Learning:** {profile['profile_purpose']}")
         st.write(f"**Proficiency Level:** {profile['profile_level']}")
         st.write(f"**Minutes Per Day:** {profile['profile_minutes_per_day']} minutes")
+
+    if api_button:
+        api_key_dialog()
 
     if profile_button:
         profile_dialog()        
