@@ -9,13 +9,14 @@ import traceback
 import json
 from io import BytesIO
 import time 
+import imageio_ffmpeg as ffmpeg
 
 st.set_page_config(layout="wide")
 
 AI71_API_KEY = "Enter your AI71 api-key"
 client = AI71(AI71_API_KEY)
 
-AudioSegment.ffmpeg = "enter ffmpeg.exe file location"
+AudioSegment.ffmpeg = ffmpeg.get_ffmpeg_exe()
 
 db_config = {
     'host': 'localhost',
