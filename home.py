@@ -1,7 +1,7 @@
 import streamlit as st
 import os
 import sqlite3
-
+import webbrowser
 url = 'https://nat-falcon-main.streamlit.app/'
 
 st.set_page_config(layout="wide")
@@ -76,13 +76,7 @@ def get_user_profile(username):
     return user_profile
     
 def run_main():
-    js_code = """
-    <script type="text/javascript">
-        window.location.href = 'https://nat-falcon-main.streamlit.app';
-    </script>
-        """
-    st.markdown(js_code, unsafe_allow_html=True)
-
+    webbrowser.open('https://nat-falcon-main.streamlit.app')
 
 # Page configuration
 if 'page' not in st.session_state:
