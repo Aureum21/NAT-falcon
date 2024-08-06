@@ -1,6 +1,8 @@
 import streamlit as st
 import os
 import sqlite3
+import subprocess
+import sys
 
 url = 'https://nat-falcon-main.streamlit.app/'
 
@@ -82,6 +84,17 @@ def run_main():
     </script>
         """
     st.markdown(js_code, unsafe_allow_html=True)
+
+
+# Page configuration
+if 'page' not in st.session_state:
+    st.session_state.page = 'home'
+if 'signup_step' not in st.session_state:
+    st.session_state.signup_step = 0
+if 'user_data' not in st.session_state:
+    st.session_state.user_data = None
+if 'username' not in st.session_state:
+    st.session_state.username = None
 
 def home_page():
       
