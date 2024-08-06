@@ -1,8 +1,11 @@
 import streamlit as st
 import os
 import sqlite3
-import webbrowser
+import subprocess
+import sys
+
 url = 'https://nat-falcon-main.streamlit.app/'
+
 st.set_page_config(layout="wide")
 
 script_dir = os.path.dirname(__file__)
@@ -75,7 +78,12 @@ def get_user_profile(username):
     return user_profile
     
 def run_main():
-    webbrowser.open(url)
+    if sys.platform == 'win32':
+        subprocess.run(['start', url], shell=True)
+    elif sys.platform == 'darwin':
+        subprocess.run(['open', url])
+    else:
+        subprocess.run(['xdg-open', url])
 
 
 # Page configuration
