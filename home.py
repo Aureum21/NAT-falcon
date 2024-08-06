@@ -1,8 +1,6 @@
 import streamlit as st
 import os
 import sqlite3
-import subprocess
-import sys
 
 url = 'https://nat-falcon-main.streamlit.app/'
 
@@ -78,23 +76,12 @@ def get_user_profile(username):
     return user_profile
     
 def run_main():
-    if sys.platform == 'win32':
-        subprocess.run(['start', url], shell=True)
-    elif sys.platform == 'darwin':
-        subprocess.run(['open', url])
-    else:
-        subprocess.run(['xdg-open', url])
-
-
-# Page configuration
-if 'page' not in st.session_state:
-    st.session_state.page = 'home'
-if 'signup_step' not in st.session_state:
-    st.session_state.signup_step = 0
-if 'user_data' not in st.session_state:
-    st.session_state.user_data = None
-if 'username' not in st.session_state:
-    st.session_state.username = None
+    js_code = """
+    <script type="text/javascript">
+        window.location.href = 'https://nat-falcon-main.streamlit.app';
+    </script>
+        """
+    st.markdown(js_code, unsafe_allow_html=True)
 
 def home_page():
       
