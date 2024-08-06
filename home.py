@@ -1,7 +1,7 @@
 import streamlit as st
 import os
 import sqlite3
-import webbrowser
+import requests
 url = 'https://nat-falcon-main.streamlit.app/'
 
 st.set_page_config(layout="wide")
@@ -76,7 +76,17 @@ def get_user_profile(username):
     return user_profile
     
 def run_main():
-    webbrowser.open('https://nat-falcon-main.streamlit.app')
+    response = requests.get('https://nat-falcon-main.streamlit.app')
+    if response.status_code == 200:
+        st.write("Redirecting to the second app...")
+        js_code = """
+        <script type="text/javascript">
+            window.location.href = 'https://nat-falcon-main.streamlit.app';
+        </script>
+        """
+        st.markdown(js_code, unsafe_allow_html=True)
+    else:
+        st.write("Failed to open the second app. Please try again.")
 
 # Page configuration
 if 'page' not in st.session_state:
