@@ -76,17 +76,12 @@ def get_user_profile(username):
     return user_profile
     
 def run_main():
-    response = requests.get('https://nat-falcon-main.streamlit.app')
-    if response.status_code == 200:
-        st.write("Redirecting to the second app...")
-        js_code = """
-        <script type="text/javascript">
-            window.location.href = 'https://nat-falcon-main.streamlit.app';
-        </script>
-        """
-        st.markdown(js_code, unsafe_allow_html=True)
-    else:
-        st.write("Failed to open the second app. Please try again.")
+    redirect_script = """
+    <script type="text/javascript">
+        window.location.href = 'https://nat-falcon-main.streamlit.app';
+    </script>
+    """
+    st.markdown(redirect_script, unsafe_allow_html=True)
 
 # Page configuration
 if 'page' not in st.session_state:
