@@ -1,8 +1,6 @@
 import streamlit as st
 import os
 import sqlite3
-import subprocess
-import sys
 
 url = 'https://nat-falcon-main.streamlit.app/'
 
