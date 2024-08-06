@@ -75,7 +75,7 @@ def get_user_profile(username):
     return user_profile
     
 def run_main():
-    subprocess.run(['streamlit', 'run', os.path.join(script_dir, 'main.py')])
+    subprocess.run(['streamlit', 'run', 'https://nat-falcon-main.streamlit.app/'])
 
 
 # Page configuration
