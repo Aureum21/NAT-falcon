@@ -5,3 +5,6 @@ gtts==2.5.2
 pydub==0.25.1
 imageio-ffmpeg==0.5.1
 PyAudio==0.2.14
+pipwin==0.5.2
+pygame==2.6.0
+pyglet==2.0.17
