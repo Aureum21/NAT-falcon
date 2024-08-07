@@ -97,32 +97,56 @@ if 'username' not in st.session_state:
 lesson_plans = {
     "Beginner": {
         "General": {
-            "language": ["English", "Spanish", "French", "Arabic"],  
-            "lesson": "Lesson plan for beginner learners focusing on general language skills."
+            "language": ["English", "Spanish", "French", "Arabic", "German", "Italian", "Chinese", "Japanese", "Korean", "Portuguese", "Russian", "Hindi"],  
+            "lesson": "Lesson plan for Beginner learners focusing on general language skills."
         },
         "Travel": {
-            "language": ["English", "Spanish", "French", "Arabic"],
-            "lesson": "Lesson plan for beginner learners focusing on travel-related language skills."
+            "language": ["English", "Spanish", "French", "Arabic", "German", "Italian", "Chinese", "Japanese", "Korean", "Portuguese", "Russian", "Hindi"],
+            "lesson": "Lesson plan for Beginner learners focusing on travel-related language skills."
+        },
+        "Business": {
+            "language": ["English", "Spanish", "French", "Arabic", "German", "Italian", "Chinese", "Japanese", "Korean", "Portuguese", "Russian", "Hindi"],
+            "lesson": "Lesson plan for Beginner learners focusing on business-related language skills."
+        },
+        "Academic": {
+            "language": ["English", "Spanish", "French", "Arabic", "German", "Italian", "Chinese", "Japanese", "Korean", "Portuguese", "Russian", "Hindi"],
+            "lesson": "Lesson plan for Beginner learners focusing on academic-related language skills."
         }
     },
     "Intermediate": {
-        "General": {
-            "language": ["English", "Spanish", "French", "Arabic"],
-            "lesson": "Lesson plan for intermediate learners focusing on general language skills."
+         "General": {
+            "language": ["English", "Spanish", "French", "Arabic", "German", "Italian", "Chinese", "Japanese", "Korean", "Portuguese", "Russian", "Hindi"],  
+            "lesson": "Lesson plan for Intermediate learners focusing on general language skills."
+        },
+        "Travel": {
+            "language": ["English", "Spanish", "French", "Arabic", "German", "Italian", "Chinese", "Japanese", "Korean", "Portuguese", "Russian", "Hindi"],
+            "lesson": "Lesson plan for Intermediate learners focusing on travel-related language skills."
         },
         "Business": {
-            "language": ["English", "Spanish", "French", "Arabic"],
+            "language": ["English", "Spanish", "French", "Arabic", "German", "Italian", "Chinese", "Japanese", "Korean", "Portuguese", "Russian", "Hindi"],
             "lesson": "Lesson plan for intermediate learners focusing on business-related language skills."
+        },
+        "Academic": {
+            "language": ["English", "Spanish", "French", "Arabic", "German", "Italian", "Chinese", "Japanese", "Korean", "Portuguese", "Russian", "Hindi"],
+            "lesson": "Lesson plan for Intermediate learners focusing on academic-related language skills."
         }
     },
     "Advanced": {
-        "General": {
-            "language": ["English", "Spanish", "French", "Arabic"],
-            "lesson": "Lesson plan for advanced learners focusing on general language skills."
+         "General": {
+            "language": ["English", "Spanish", "French", "Arabic", "German", "Italian", "Chinese", "Japanese", "Korean", "Portuguese", "Russian", "Hindi"],  
+            "lesson": "Lesson plan for Advanced learners focusing on general language skills."
+        },
+        "Travel": {
+            "language": ["English", "Spanish", "French", "Arabic", "German", "Italian", "Chinese", "Japanese", "Korean", "Portuguese", "Russian", "Hindi"],
+            "lesson": "Lesson plan for Advanced learners focusing on travel-related language skills."
+        },
+        "Business": {
+            "language": ["English", "Spanish", "French", "Arabic", "German", "Italian", "Chinese", "Japanese", "Korean", "Portuguese", "Russian", "Hindi"],
+            "lesson": "Lesson plan for Advanced learners focusing on business-related language skills."
         },
         "Academic": {
-            "language": ["English", "Spanish", "French", "Arabic"],
-            "lesson": "Lesson plan for advanced learners focusing on academic-related language skills."
+            "language": ["English", "Spanish", "French", "Arabic", "German", "Italian", "Chinese", "Japanese", "Korean", "Portuguese", "Russian", "Hindi"],
+            "lesson": "Lesson plan for Advanced learners focusing on academic-related language skills."
         }
     }
 }
@@ -219,19 +243,14 @@ def chat_with_falcon(user_input):
     if not st.session_state.api_key:
         st.error("API key is not set. Please provide a valid API key.")
         return "API key is missing."
-    profile_language = st.session_state.get('profile_language')
+    profile_language = st.session_state.get('profile_language', 'English')
     profile_level = st.session_state.get('profile_level', 'Beginner')
     profile_purpose = st.session_state.get('profile_purpose', 'General')
-
-    if not profile_language:
-        profile_language = 'English'
 
     lesson = ""
     if profile_level in lesson_plans:
         if profile_purpose in lesson_plans[profile_level]:
-            if profile_language in lesson_plans[profile_level]["language"]:
-                lesson = lesson_plans[profile_level][profile_purpose]
-
+            lesson = lesson_plans[profile_level][profile_purpose]
 
     system_prompt = (
         f"You are an assistant helping a user learn {profile_language} at {profile_level} level. "
@@ -277,7 +296,7 @@ def main():
     # Define dialogs for each profile step
     @st.dialog("Language Selection", width="large")
     def profile_step_1():
-        language = st.selectbox("What language?", ["Arabic", "English", "French", "Spanish"])
+        language = st.selectbox("What language?", ["English", "Spanish", "French", "Arabic", "German", "Italian", "Chinese", "Japanese", "Korean", "Portuguese", "Russian", "Hindi"])
         if st.button("Next"):
             st.session_state.profile_language = language
             st.session_state.profile_step = 1
@@ -293,7 +312,7 @@ def main():
 
     @st.dialog("Purpose", width="large")
     def profile_step_3():
-        purpose = st.text_input("Why are you learning?")
+        purpose = st.selectbox("Why are you taking this course?", ["General", "Academic", "Business", "Travel"])
         if st.button("Next"):
             st.session_state.profile_purpose = purpose
             st.session_state.profile_step = 3

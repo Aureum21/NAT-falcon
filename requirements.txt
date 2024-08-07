@@ -1,7 +1,7 @@
 streamlit==1.37.1
 ai71==0.0.18
-speechrecognition==3.8.1
-gtts==2.2.3
+speechrecognition==3.10.4
+gtts==2.5.2
 pydub==0.25.1
-imageio-ffmpeg==0.4.8
+imageio-ffmpeg==0.5.1
 PyAudio==0.2.14
