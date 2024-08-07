@@ -275,36 +275,32 @@ def main():
         st.session_state.profile_step = 0
 
     # Define dialogs for each profile step
-    @st.dialog("Profile - Step 1", width="large")
+    @st.dialog("Language Selection", width="large")
     def profile_step_1():
-        st.title("Profile - Step 1")
-        language = st.text_input("What language?")
+        language = st.selectbox("What language?", ["Arabic", "English", "French", "Spanish"])
         if st.button("Next"):
             st.session_state.profile_language = language
             st.session_state.profile_step = 1
             st.rerun()
 
-    @st.dialog("Profile - Step 2", width="large")
+    @st.dialog("Proficiency Level selection", width="large")
     def profile_step_2():
-        st.title("Profile - Step 2")
         level = st.selectbox("What level?", ["Beginner", "Intermediate", "Advanced"])
         if st.button("Next"):
             st.session_state.profile_level = level
             st.session_state.profile_step = 2
             st.rerun()
 
-    @st.dialog("Profile - Step 3", width="large")
+    @st.dialog("Purpose", width="large")
     def profile_step_3():
-        st.title("Profile - Step 3")
-        purpose = st.text_input("What is your purpose?")
+        purpose = st.text_input("Why are you learning?")
         if st.button("Next"):
             st.session_state.profile_purpose = purpose
             st.session_state.profile_step = 3
             st.rerun()
 
-    @st.dialog("Profile - Step 4", width="large")
+    @st.dialog("Minutes per day", width="large")
     def profile_step_4():
-        st.title("Profile - Step 4")
         minutes_per_day = st.number_input("How many minutes a day would be preferable?", min_value=0)
         if st.button("Submit"):
             st.session_state.profile_minutes_per_day = minutes_per_day
@@ -318,7 +314,7 @@ def main():
         st.write(f"**Proficiency Level:** {st.session_state.profile_level}")
         st.write(f"**Purpose of Learning:** {st.session_state.profile_purpose}")
         st.write(f"**Minutes Per Day:** {st.session_state.profile_minutes_per_day} minutes")
-    # Trigger the appropriate dialog based on the profile step
+
     if profile_button or st.session_state.profile_step >= 0:
         if st.session_state.profile_step == 0:
             profile_step_1()
@@ -338,15 +334,12 @@ def main():
         progress_bar = st.progress(0.0)
         current_time = time.time()
         required_minutes_per_day = st.session_state.profile_minutes_per_day
-        # Calculate the elapsed time since the last update
         elapsed_time = current_time - st.session_state.start_time
         st.session_state.total_time += elapsed_time
         st.session_state.start_time = current_time
 
-        # Convert total time to minutes
         total_time_minutes = st.session_state.total_time / 60
         
-        # Update the progress bar based on the required time
         progress_percentage = min(total_time_minutes / required_minutes_per_day, 1.0)
         progress_bar.progress(progress_percentage)
         
@@ -366,7 +359,6 @@ def main():
     def pricing_dialog():
         st.title("Pricing Plans")
         
-        # Define the layout with three columns
         colu1, colu2, colu3 = st.columns(3)
 
         with colu1:
@@ -528,12 +520,10 @@ def main():
                             else:
                                 st.write(f"Incorrect. The correct answer is {current_question['answer']}.")
 
-                            # Move to next question or finish quiz
                             if st.session_state.current_question_index < len(st.session_state.quiz_questions) - 1:
                                 st.session_state.current_question_index += 1
                                 st.rerun()
                             else:
-                                # Quiz finished
                                 st.write(f"Quiz completed! You scored {st.session_state.correct_answers} out of {len(st.session_state.quiz_questions)}.")
                                 if st.session_state.correct_answers > 3:
                                     st.balloons()
