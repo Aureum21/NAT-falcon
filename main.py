@@ -23,7 +23,7 @@ def get_db_connection():
     except sqlite3.Error as err:
         print(f"Error: {err}")
         return None
-logo_path = "logo.png" 
+
 
 def insert_user(name, username, email, password, language, level, purpose, minperday):
     conn = get_db_connection()
@@ -68,31 +68,6 @@ def get_user_data(username_or_email):
         conn.close()
     return user_data
 
-def get_user_profile(username):
-    conn = get_db_connection()
-    if conn is None:
-        return None
-    cursor = conn.cursor()
-    try:
-        cursor.execute("SELECT * FROM users WHERE username = ?", (username,))
-        user_profile = cursor.fetchone()
-    finally:
-        cursor.close()
-        conn.close()
-    return user_profile
-
-def get_user_profile():
-    conn = get_db_connection()
-    if conn is None:
-        return None
-    cursor = conn.cursor()
-    try:
-        cursor.execute('SELECT * FROM users ORDER BY user_id DESC LIMIT 1')
-        user_profile = cursor.fetchone()
-    finally:
-        cursor.close()  
-        conn.close()  
-    return user_profile
 
 def save_to_database(user_message, assistant_response):
     conn = get_db_connection()
@@ -172,7 +147,6 @@ def api_key_dialog():
 
 if 'api_key' not in st.session_state:
     st.session_state.api_key = ""
-    api_key_dialog()
     
 AI71_API_KEY = st.session_state.api_key
 client = AI71(AI71_API_KEY)
@@ -245,9 +219,12 @@ def chat_with_falcon(user_input):
     if not st.session_state.api_key:
         st.error("API key is not set. Please provide a valid API key.")
         return "API key is missing."
-    profile_language = st.session_state.get('profile_language', 'English')
+    profile_language = st.session_state.get('profile_language')
     profile_level = st.session_state.get('profile_level', 'Beginner')
     profile_purpose = st.session_state.get('profile_purpose', 'General')
+
+    if not profile_language:
+        profile_language = 'English'
 
     lesson = ""
     if profile_level in lesson_plans:
@@ -294,32 +271,67 @@ def main():
     api_button = sidebar.button("API-key", use_container_width=True)
     sidebar.caption("All rights reserved \u00A9 2024 Voicepal")
 
-    profile = get_user_profile()
-    if profile:
-        st.session_state.profile_language = profile['profile_language']
-        st.session_state.profile_level = profile['profile_level']
-        st.session_state.profile_purpose = profile['profile_purpose']
-        st.session_state.profile_minutes_per_day = profile['profile_minutes_per_day']
-        st.session_state.user_id = profile['user_id']
-    else:
-        st.error("User profile not found.")
-        return
+    if 'profile_step' not in st.session_state:
+        st.session_state.profile_step = 0
 
-    @st.dialog(f"{profile['username']}'s Profile ", width="large")
+    # Define dialogs for each profile step
+    @st.dialog("Profile - Step 1", width="large")
+    def profile_step_1():
+        st.title("Profile - Step 1")
+        language = st.text_input("What language?")
+        if st.button("Next"):
+            st.session_state.profile_language = language
+            st.session_state.profile_step = 1
+            st.rerun()
+
+    @st.dialog("Profile - Step 2", width="large")
+    def profile_step_2():
+        st.title("Profile - Step 2")
+        level = st.selectbox("What level?", ["Beginner", "Intermediate", "Advanced"])
+        if st.button("Next"):
+            st.session_state.profile_level = level
+            st.session_state.profile_step = 2
+            st.rerun()
+
+    @st.dialog("Profile - Step 3", width="large")
+    def profile_step_3():
+        st.title("Profile - Step 3")
+        purpose = st.text_input("What is your purpose?")
+        if st.button("Next"):
+            st.session_state.profile_purpose = purpose
+            st.session_state.profile_step = 3
+            st.rerun()
+
+    @st.dialog("Profile - Step 4", width="large")
+    def profile_step_4():
+        st.title("Profile - Step 4")
+        minutes_per_day = st.number_input("How many minutes a day would be preferable?", min_value=0)
+        if st.button("Submit"):
+            st.session_state.profile_minutes_per_day = minutes_per_day
+            st.session_state.profile_step = 4
+            st.write("Profile saved successfully!")
+
+    @st.dialog("User Profile", width="large")
     def profile_dialog():
-        st.write(f"**Name:** {profile['fullname']}")
-        st.write(f"**Username:** {profile['username']}")
-        st.write(f"**Email:** {profile['email']}")
-        st.write(f"**Language Preference:** {profile['profile_language']}")
-        st.write(f"**Purpose of Learning:** {profile['profile_purpose']}")
-        st.write(f"**Proficiency Level:** {profile['profile_level']}")
-        st.write(f"**Minutes Per Day:** {profile['profile_minutes_per_day']} minutes")
 
+        st.write(f"**Language Preference:** {st.session_state.profile_language}")
+        st.write(f"**Proficiency Level:** {st.session_state.profile_level}")
+        st.write(f"**Purpose of Learning:** {st.session_state.profile_purpose}")
+        st.write(f"**Minutes Per Day:** {st.session_state.profile_minutes_per_day} minutes")
+    # Trigger the appropriate dialog based on the profile step
+    if profile_button or st.session_state.profile_step >= 0:
+        if st.session_state.profile_step == 0:
+            profile_step_1()
+        elif st.session_state.profile_step == 1:
+            profile_step_2()
+        elif st.session_state.profile_step == 2:
+            profile_step_3()
+        elif st.session_state.profile_step == 3:
+            profile_step_4()
+    if profile_button and st.session_state.profile_step == 4:
+        profile_dialog()
     if api_button:
         api_key_dialog()
-
-    if profile_button:
-        profile_dialog()        
 
     @st.dialog("Progress")
     def progress_dialog():
