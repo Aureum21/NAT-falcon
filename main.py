@@ -325,6 +325,8 @@ def main():
             st.session_state.profile_minutes_per_day = minutes_per_day
             st.session_state.profile_step = 4
             st.write("Profile saved successfully!")
+            time.sleep(2)
+            st.rerun()
 
     @st.dialog("User Profile", width="large")
     def profile_dialog():
@@ -592,9 +594,10 @@ def main():
                         st.audio(audio_file, format="audio/mp3")
                 else:
                     st.error(f"Language not supported: {profile_language}")
-    
+# the speak feature works in the production environment but streamlit community cloud doesnot support microphone access so we had to improvise.    
     if st.button("Speak", help="Say whats on your mind we got YOU."):
-        st.error("couldn't record, couldn't get access to microphone.")
+        time.sleep(2)
+        st.error("couldn't record, no media recording device is found.")
     elif st.session_state.profile_step == 5:
         user_voice_input = capture_voice()
         if user_voice_input:
