@@ -2,13 +2,12 @@ import streamlit as st
 import os
 import sqlite3
 import streamlit.components.v1 as components
-url = 'https://nat-falcon-main.streamlit.app/'
 
 st.set_page_config(layout="wide")
 
 script_dir = os.path.dirname(__file__)
 
-logo_path = "C:/Users/alazar/Desktop/falcon hackathon/alazar/falcon/logo.png" 
+logo_path = "logo.png" 
 
 def get_db_connection():
     try:
