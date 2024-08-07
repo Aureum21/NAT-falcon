@@ -594,6 +594,8 @@ def main():
                     st.error(f"Language not supported: {profile_language}")
     
     if st.button("Speak", help="Say whats on your mind we got YOU."):
+        st.error("couldn't record, couldn't get access to microphone.")
+    elif st.session_state.profile_step == 5:
         user_voice_input = capture_voice()
         if user_voice_input:
 
