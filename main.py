@@ -23,7 +23,63 @@ def get_db_connection():
     except sqlite3.Error as err:
         print(f"Error: {err}")
         return None
+logo_path = "logo.png" 
 
+def insert_user(name, username, email, password, language, level, purpose, minperday):
+    conn = get_db_connection()
+    if conn is None:
+        return
+    cursor = conn.cursor()
+    try:
+        cursor.execute('''INSERT INTO users 
+                          (fullname, username, email, password, profile_language, profile_level, profile_purpose, profile_minutes_per_day) 
+                          VALUES (?, ?, ?, ?, ?, ?, ?, ?)''', 
+                       (name, username, email, password, language, level, purpose, minperday))
+        conn.commit()
+    finally:
+        cursor.close()
+        conn.close()
+
+def check_user(username_or_email, password):
+    conn = get_db_connection()
+    if conn is None:
+        return None
+    cursor = conn.cursor()
+    try:
+        cursor.execute('SELECT * FROM users WHERE (username = ? OR email = ?) AND password = ?', 
+                       (username_or_email, username_or_email, password))
+        user = cursor.fetchone()
+    finally:
+        cursor.close()
+        conn.close()
+    return user
+
+def get_user_data(username_or_email):
+    conn = get_db_connection()
+    if conn is None:
+        return None
+    cursor = conn.cursor()
+    try:
+        cursor.execute('SELECT * FROM users WHERE username = ? OR email = ?', 
+                       (username_or_email, username_or_email))
+        user_data = cursor.fetchone()
+    finally:
+        cursor.close()
+        conn.close()
+    return user_data
+
+def get_user_profile(username):
+    conn = get_db_connection()
+    if conn is None:
+        return None
+    cursor = conn.cursor()
+    try:
+        cursor.execute("SELECT * FROM users WHERE username = ?", (username,))
+        user_profile = cursor.fetchone()
+    finally:
+        cursor.close()
+        conn.close()
+    return user_profile
 
 def get_user_profile():
     conn = get_db_connection()
@@ -53,6 +109,16 @@ def save_to_database(user_message, assistant_response):
         cursor.close()
         conn.close()
 
+# Page configuration
+if 'page' not in st.session_state:
+    st.session_state.page = 'home'
+if 'signup_step' not in st.session_state:
+    st.session_state.signup_step = 0
+if 'user_data' not in st.session_state:
+    st.session_state.user_data = None
+if 'username' not in st.session_state:
+    st.session_state.username = None
+    
 lesson_plans = {
     "Beginner": {
         "General": {
