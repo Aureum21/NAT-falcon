@@ -460,7 +460,7 @@ def main():
 
             st.chat_message("assistant").markdown(response_text)
 
-            save_to_database(user_input, response_text)
+            #save_to_database(user_input, response_text)
 
             st.rerun()
 
@@ -605,7 +605,7 @@ def main():
 
             speak_text(response_text, lang=profile_language)
 
-            save_to_database(user_voice_input, response_text)
+            #save_to_database(user_voice_input, response_text)
 
 if __name__ == "__main__":
     main()
