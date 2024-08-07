@@ -1,14 +1,14 @@
 import streamlit as st
 import os
 import sqlite3
-import webbrowser
+import streamlit.components.v1 as components
 url = 'https://nat-falcon-main.streamlit.app/'
 
 st.set_page_config(layout="wide")
 
 script_dir = os.path.dirname(__file__)
 
-logo_path = "logo.png" 
+logo_path = "C:/Users/alazar/Desktop/falcon hackathon/alazar/falcon/logo.png" 
 
 def get_db_connection():
     try:
@@ -75,8 +75,6 @@ def get_user_profile(username):
         conn.close()
     return user_profile
     
-def run_main():
-    webbrowser.open('https://nat-falcon-main.streamlit.app')
 
 # Page configuration
 if 'page' not in st.session_state:
@@ -166,7 +164,10 @@ def login_page():
         user = check_user(username_or_email, password)
         if user:
             st.session_state.username = user[3]
-            run_main()
+            html_code = """
+                    <a href="https://nat-falcon-main.streamlit.app" target="_blank">Click here to get started.</a>
+                """
+            st.markdown(html_code, unsafe_allow_html=True)
         else:
             st.error('Invalid username or password')
 
@@ -220,8 +221,10 @@ def profile_setup_page():
                 st.toast("Profile saved successfully!")
                 insert_user(st.session_state.name, st.session_state.username, st.session_state.email, st.session_state.password, 
                             st.session_state.profile_language, st.session_state.profile_level, st.session_state.profile_purpose, st.session_state.profile_minutes_per_day)
-                run_main()
-                st.rerun()
+                html_code = """
+                    <a href="https://nat-falcon-main.streamlit.app" target="_blank">Click here to get started.</a>
+                """
+                st.markdown(html_code, unsafe_allow_html=True)
         profile_step_4()
 
 def main():
