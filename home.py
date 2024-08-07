@@ -152,7 +152,41 @@ html_code = """
     </style>
     <a href="https://nat-falcon-main.streamlit.app" target="_blank" class="button">Try It</a>
 """
-
+def signup_page():
+    st.title('Signup')
+    name = st.text_input('Name', placeholder='Enter your name')
+    global username
+    username = st.text_input('Username', placeholder='Enter your username')
+    email = st.text_input('Email', placeholder='Enter your email')
+    password = st.text_input('Password', placeholder='Enter your password', type='password')
+    confirm_password = st.text_input('Confirm Password', placeholder='Confirm your password', type='password')
+    if st.button('Signup'):
+        if name and username and email and password and confirm_password:
+            if password == confirm_password:
+                st.session_state.name = name
+                st.session_state.username = username
+                st.session_state.email = email
+                st.session_state.password = password
+                st.session_state.page = 'profile_setup'
+            else:
+                st.error('Passwords do not match')
+        else:
+            st.error('All fields are required')
+# we havent used the signup and login because we couldnt setup our databse in the cloud most of them requires finance but was working and functional in the testing environment.          
+def login_page():
+    st.title('Login')
+    username_or_email = st.text_input('Username/Email', placeholder='Enter your username or email')
+    password = st.text_input('Password', placeholder='Enter your password', type='password')
+    if st.button('Login'):
+        user = check_user(username_or_email, password)
+        if user:
+            st.session_state.username = user[3]
+            html_code = """
+                    <a href="https://nat-falcon-main.streamlit.app" target="_blank">Click here to get started.</a>
+                """
+            st.markdown(html_code, unsafe_allow_html=True)
+        else:
+            st.error('Invalid username or password')
 def main():
     page_mapping = {
         'home': home_page,
