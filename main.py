@@ -609,7 +609,7 @@ def main():
                         st.audio(audio_file, format="audio/mp3")
                 else:
                     st.error(f"Language not supported: {profile_language}")
-# the speak feature works in the production environment but streamlit community cloud doesnot support microphone access so we had to improvise.    
+  
     if st.button("Speak", help="Say whats on your mind we got YOU."):
         
         user_voice_input = capture_voice()
