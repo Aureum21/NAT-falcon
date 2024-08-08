@@ -10,6 +10,7 @@ from io import BytesIO
 import time 
 import imageio_ffmpeg as ffmpeg
 import sqlite3
+from streamlit_webrtc import webrtc_streamer, WebRtcMode
 
 st.set_page_config(layout="wide")
 
@@ -177,20 +178,34 @@ client = AI71(AI71_API_KEY)
 
 def capture_voice():
     
-    recognizer = sr.Recognizer()
-    with sr.Microphone() as source:
-        st.info("Please say something:")
-        audio = recognizer.listen(source)
-        try:
-            text = recognizer.recognize_google(audio)
-            st.success(f"You said: {text}")
-            return text
-        except sr.UnknownValueError:
-            st.error("Sorry, I did not understand that.")
-            return None
-        except sr.RequestError:
-            st.error("Sorry, there was an error with the speech recognition service.")
-            return None
+    webrtc_ctx = webrtc_streamer(
+        key="audio",
+        mode=WebRtcMode.SENDONLY,
+        rtc_configuration={"iceServers": [{"urls": ["stun:stun.l.google.com:19302"]}]}
+    )
+
+    if webrtc_ctx.audio_receiver:
+        audio_frames = webrtc_ctx.audio_receiver.get_frames()
+        audio_data = b"".join(audio_frames)
+
+        r = sr.Recognizer()
+        with sr.AudioFile(BytesIO(audio_data)) as source:
+            audio = r.record(source)
+            try:
+                text = r.recognize_google(audio)
+                st.success(f"You said: {text}")
+                return text
+            except sr.UnknownValueError:
+                st.error("Sorry, I did not understand that.")
+                return None
+            except sr.RequestError:
+                st.error("Sorry, there was an error with the speech recognition service.")
+                return None
+
+    else:
+        st.error("No audio input detected.")
+        return None
+
 
 def get_response(messages):
     if not st.session_state.api_key:
@@ -596,9 +611,7 @@ def main():
                     st.error(f"Language not supported: {profile_language}")
 # the speak feature works in the production environment but streamlit community cloud doesnot support microphone access so we had to improvise.    
     if st.button("Speak", help="Say whats on your mind we got YOU."):
-        time.sleep(2)
-        st.error("couldn't record, no media recording device is found.")
-    elif st.session_state.profile_step == 5:
+        
         user_voice_input = capture_voice()
         if user_voice_input:
 
