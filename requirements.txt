@@ -8,3 +8,4 @@ PyAudio==0.2.14
 pipwin==0.5.2
 pygame==2.6.0
 pyglet==2.0.17
+streamlit-webrtc==0.47.7
